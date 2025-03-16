@@ -1,13 +1,11 @@
 services:
-  anythink-backend-node:
-    image: public.ecr.aws/v0a2l7y2/wilco/anythink-backend-node:latest
-    container_name: anythink-backend-node
-    command: sh -c "cd backend && /wait-for-it.sh mongodb-node:27017 -q -t 60 && yarn dev"
+  anythink-backend-java:
+    image: public.ecr.aws/v0a2l7y2/wilco/anythink-backend-java:latest
+    container_name: anythink-backend-java
+    command: sh -c "cd backend && /wait-for-it.sh postgres-java:5432 -q -t 60 && ./start.sh"
 
     environment:
-      - NODE_ENV=development
       - PORT=3000
-      - MONGODB_URI=mongodb://mongodb-node:27017/anythink-market
       - GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN=${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
     working_dir: /usr/src
     volumes:
@@ -16,12 +14,12 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - "mongodb-node"
+      - "postgres-java"
 
   anythink-frontend-react:
     image: public.ecr.aws/v0a2l7y2/wilco/anythink-frontend-react:latest
     container_name: anythink-frontend-react
-    command: sh -c "cd frontend && /wait-for-it.sh anythink-backend-node:3000 -t 120 --strict -- curl --head -X GET --retry 30 --retry-connrefused --retry-delay 1 anythink-backend-node:3000/api/ping && yarn start"
+    command: sh -c "cd frontend && /wait-for-it.sh anythink-backend-java:3000 -t 120 --strict -- curl --head -X GET --retry 30 --retry-connrefused --retry-delay 1 anythink-backend-java:3000/api/ping && yarn start"
     environment:
       - NODE_ENV=development
       - PORT=3001
@@ -34,18 +32,22 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - "anythink-backend-node"
+      - "anythink-backend-java"
 
-  mongodb-node:
-    container_name: mongodb-node
-    restart: always
-    image: mongo
+  postgres-java:
+    container_name: postgres-java
+    restart: on-failure
+    image: postgres
     logging:
       driver: none
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: anythink-market
     volumes:
-      - ~/mongo/data:/data/db
+      - ~/postgres/data:/data/db
     ports:
-      - '27017:27017'
+      - '5433:5432'
 
   anythink-ack:
     image: public.ecr.aws/v0a2l7y2/wilco/anythink-ack:latest
@@ -54,4 +56,4 @@ services:
       - GITHUB_TOKEN=$GITHUB_TOKEN
       - CODESPACE_NAME=$CODESPACE_NAME
     depends_on:
-      - "anythink-frontend-react" 
+      - "anythink-frontend-react"

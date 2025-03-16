@@ -1,3 +1,6 @@
-#!/bin/sh
+./gradlew -i bootRun &
 
-yarn start
+while true; do
+   inotifywait -e modify,create,delete,move -r ./src/ && \
+  ./gradlew -i assemble
+done

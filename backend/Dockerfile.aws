@@ -1,10 +1,9 @@
-FROM node:16
+FROM openjdk:21
 
 WORKDIR /usr/src
 COPY backend ./backend
 COPY .wilco ./.wilco
 
-# Pre-install npm packages
+# Pre-install packages
 WORKDIR /usr/src/backend
-RUN yarn install
-
+RUN ./gradlew build

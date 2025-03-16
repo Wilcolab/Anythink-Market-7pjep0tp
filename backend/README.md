@@ -1,22 +1,35 @@
 # Anythink Market Backend
 
-The Anythink Market backend is Node web app written with [Express](https://expressjs.com/)
+# How it works
 
-## Dependencies
+The application uses Spring Boot (Web, Mybatis).
 
-- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - For generating JWTs used by authentication
-- [mongoose](https://github.com/Automattic/mongoose) - For modeling and mapping MongoDB data to javascript
-- [mongoose-unique-validator](https://github.com/blakehaswell/mongoose-unique-validator) - For handling unique validation errors in Mongoose. Mongoose only handles validation at the document level, so a unique index across a collection will throw an exception at the driver level. The `mongoose-unique-validator` plugin helps us by formatting the error like a normal mongoose `ValidationError`.
-- [passport](https://github.com/jaredhanson/passport) - For handling user authentication
-- [slug](https://github.com/dodo/node-slug) - For encoding titles into a URL-friendly format
+And the code is organized as this:
 
-## Application Structure
+1. `api` is the web layer implemented by Spring MVC
+2. `core` is the business model including entities and services
+3. `application` is the high-level services for querying the data transfer objects
+4. `infrastructure`  contains all the implementation classes as the technique details
 
-- `app.js` - The entry point to our application. This file defines our express server and connects it to MongoDB using mongoose. It also requires the routes and models we'll be using in the application.
-- `config/` - This folder contains configuration for passport as well as a central location for configuration/environment variables.
-- `routes/` - This folder contains the route definitions for our API.
-- `models/` - This folder contains the schema definitions for our Mongoose models.
+# Getting started
 
-## Error Handling
+You'll need Java 21 installed.
 
-In `routes/api/index.js`, we define a error-handling middleware for handling Mongoose's `ValidationError`. This middleware will respond with a 422 status code and format the response to have [error messages the clients can understand](https://github.com/gothinkster/realworld/blob/master/API.md#errors-and-status-codes)
+    ./gradlew bootRun
+
+To test that it works, open a browser tab at http://localhost:3000/api/tags
+Alternatively, you can run:
+
+    curl http://localhost:3000/api/tags
+
+# Run test
+
+The repository contains a lot of test cases to cover both api test and repository test.
+
+    ./gradlew test
+
+# Code format
+
+Use spotless for code format.
+
+    ./gradlew spotlessJavaApply
